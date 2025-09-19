@@ -15,6 +15,7 @@ class AuthService {
   private restoreSession() {
     const savedUser = localStorage.getItem('current_user');
     const savedToken = localStorage.getItem('auth_token');
+    
     if (savedUser && savedToken) {
       try {
         this.currentUser = JSON.parse(savedUser);
@@ -48,12 +49,15 @@ class AuthService {
           role: 'ADMIN' as UserRole,
           balance: 10000,
         };
+        
         const token = `token_${adminUser.id}_${Date.now()}`;
         this.currentUser = adminUser;
         this.saveSession(adminUser, token);
+        
         toast.success(`Welcome back, ${adminUser.name}!`);
         return adminUser;
       }
+
       // Create a demo user for any other login
       const demoUser = {
         id: Date.now().toString(),
@@ -63,9 +67,11 @@ class AuthService {
         role: 'USER' as UserRole,
         balance: 0,
       };
+
       const token = `token_${demoUser.id}_${Date.now()}`;
       this.currentUser = demoUser;
       this.saveSession(demoUser, token);
+      
       toast.success(`Welcome back, ${demoUser.name}!`);
       return demoUser;
     } catch (error: any) {
@@ -82,18 +88,19 @@ class AuthService {
         phoneNumber: userData.phoneNumber,
         email: userData.email,
         role: 'USER' as UserRole,
-        balance: 0,
-        joiningDate: new Date().toISOString(),
-        isActive: true
+        balance: 0
       };
-      // Create member in the backend
-      await apiService.createMember(newUser);
-      // Save user session
+
+      // In a real app, this would be an API call to create the user
+      // For now, we'll simulate a successful registration
       const token = `token_${newUser.id}_${Date.now()}`;
       this.saveSession(newUser, token);
       this.currentUser = newUser;
-      // Invalidate the members query to refresh the admin's member list
+
+      // Simulate API call and update member list
+      await apiService.createMember(newUser);
       queryClient.invalidateQueries({ queryKey: ['members'] });
+      
       toast.success(`Welcome to Gaming Club, ${newUser.name}!`);
       return newUser;
     } catch (error: any) {

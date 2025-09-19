@@ -57,6 +57,11 @@ const RechargePage: React.FC = () => {
 
   const onSubmit = async (data: any) => {
     if (!user) return;
+    
+    if (!data.paymentMethod) {
+      toast.error('Please select a payment method');
+      return;
+    }
 
     try {
       const recharge = await createRecharge.mutateAsync({
@@ -68,9 +73,17 @@ const RechargePage: React.FC = () => {
       // Update user balance in context
       updateBalance((user.balance || 0) + data.amount);
       
+      // Show success message
       setShowSuccess(true);
+      toast.success(`Successfully recharged ${formatCurrency(data.amount)}`);
       setTimeout(() => setShowSuccess(false), 3000);
-    } catch (error) {
+
+      // Reset form
+      setValue('amount', 0);
+      setValue('paymentMethod', '');
+      setSelectedAmount(null);
+    } catch (error: any) {
+      toast.error(error.message || 'Recharge failed. Please try again.');
       console.error('Recharge failed:', error);
     }
   };

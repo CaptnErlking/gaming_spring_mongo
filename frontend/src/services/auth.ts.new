@@ -15,6 +15,7 @@ class AuthService {
   private restoreSession() {
     const savedUser = localStorage.getItem('current_user');
     const savedToken = localStorage.getItem('auth_token');
+    
     if (savedUser && savedToken) {
       try {
         this.currentUser = JSON.parse(savedUser);
@@ -38,36 +39,29 @@ class AuthService {
 
   async login(credentials: LoginRequest): Promise<AuthUser> {
     try {
-      // For demo, using hardcoded admin/user until backend auth is implemented
-      if (credentials.role === 'ADMIN' && credentials.phoneNumber === '1234567890') {
-        const adminUser = {
-          id: '1',
-          name: 'Admin User',
-          email: 'admin@gamingclub.com',
-          phoneNumber: credentials.phoneNumber,
-          role: 'ADMIN' as UserRole,
-          balance: 10000,
-        };
-        const token = `token_${adminUser.id}_${Date.now()}`;
-        this.currentUser = adminUser;
-        this.saveSession(adminUser, token);
-        toast.success(`Welcome back, ${adminUser.name}!`);
-        return adminUser;
-      }
-      // Create a demo user for any other login
-      const demoUser = {
-        id: Date.now().toString(),
-        name: 'Demo User',
-        email: `user${Date.now()}@gamingclub.com`,
+      // For demo, find a matching user (replace with real API call)
+      const mockUser = credentials.role === 'ADMIN' ? {
+        id: '1',
+        name: 'Admin User',
+        email: 'admin@gamingclub.com',
         phoneNumber: credentials.phoneNumber,
-        role: 'USER' as UserRole,
+        role: 'ADMIN',
+        balance: 10000,
+      } : {
+        id: '2',
+        name: 'Demo User',
+        email: 'user@gamingclub.com',
+        phoneNumber: credentials.phoneNumber,
+        role: 'USER',
         balance: 0,
       };
-      const token = `token_${demoUser.id}_${Date.now()}`;
-      this.currentUser = demoUser;
-      this.saveSession(demoUser, token);
-      toast.success(`Welcome back, ${demoUser.name}!`);
-      return demoUser;
+
+      const token = `token_${mockUser.id}_${Date.now()}`;
+      this.currentUser = mockUser;
+      this.saveSession(mockUser, token);
+      
+      toast.success(`Welcome back, ${mockUser.name}!`);
+      return mockUser;
     } catch (error: any) {
       toast.error(error.message || 'Login failed');
       throw error;
@@ -76,26 +70,34 @@ class AuthService {
 
   async register(userData: RegisterRequest): Promise<AuthUser> {
     try {
-      const newUser = {
-        id: Date.now().toString(),
+      // Create member in the backend
+      const response = await apiService.createMember({
         name: userData.name,
         phoneNumber: userData.phoneNumber,
         email: userData.email,
-        role: 'USER' as UserRole,
-        balance: 0,
-        joiningDate: new Date().toISOString(),
-        isActive: true
+        role: 'USER',
+        balance: 0
+      });
+
+      const user = {
+        id: response.id,
+        name: response.name,
+        phoneNumber: response.phoneNumber,
+        email: response.email,
+        role: response.role as UserRole,
+        balance: response.balance
       };
-      // Create member in the backend
-      await apiService.createMember(newUser);
+
       // Save user session
-      const token = `token_${newUser.id}_${Date.now()}`;
-      this.saveSession(newUser, token);
-      this.currentUser = newUser;
-      // Invalidate the members query to refresh the admin's member list
+      const token = `token_${user.id}_${Date.now()}`;
+      this.saveSession(user, token);
+      this.currentUser = user;
+
+      // Invalidate members query to update admin's member list
       queryClient.invalidateQueries({ queryKey: ['members'] });
-      toast.success(`Welcome to Gaming Club, ${newUser.name}!`);
-      return newUser;
+      
+      toast.success(`Welcome to Gaming Club, ${user.name}!`);
+      return user;
     } catch (error: any) {
       toast.error(error.message || 'Registration failed');
       throw error;
