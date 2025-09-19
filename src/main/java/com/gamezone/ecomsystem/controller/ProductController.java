@@ -1,5 +1,6 @@
 package com.gamezone.ecomsystem.controller;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.gamezone.ecomsystem.model.Product;
 import com.gamezone.ecomsystem.service.ProductService;
 
+@CrossOrigin
 @RestController
 @RequestMapping(path="/products")
 public class ProductController {
