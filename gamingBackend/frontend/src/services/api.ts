@@ -16,14 +16,17 @@ import {
 
 class ApiService {
   private api: AxiosInstance;
-  private useMockApi: boolean;
 
   constructor() {
-    this.useMockApi = import.meta.env.VITE_USE_MOCK_API === 'true';
-    const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
-    
+    // THE FIX IS HERE:
+    // When the app is deployed, the frontend and backend are on the same origin.
+    // By setting baseURL to an empty string, Axios will use relative paths for API requests.
+    // For example, a call to '/members' will correctly go to 'https://gaming-spring-mongo.onrender.com/members'.
+    // This also works for local development.
+    const baseURL = '';
+
     this.api = axios.create({
-      baseURL: this.useMockApi ? '/api' : baseURL,
+      baseURL: baseURL,
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
