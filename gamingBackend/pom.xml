@@ -53,7 +53,7 @@
                 <version>1.12.1</version>
                 <configuration>
                     <!-- Sets the location of your frontend project -->
-                    <workingDirectory>${project.basedir}/../frontend</workingDirectory>
+                    <workingDirectory>${project.basedir}/frontend</workingDirectory>
                     <nodeVersion>v18.18.0</nodeVersion>
                     <npmVersion>9.8.1</npmVersion>
                 </configuration>
@@ -107,7 +107,7 @@
                             <resources>
                                 <resource>
                                     <!-- The source folder where React builds the app -->
-                                    <directory>${project.basedir}/../frontend/dist</directory>
+                                    <directory>${project.basedir}/frontend/dist</directory>
                                     <filtering>false</filtering>
                                 </resource>
                             </resources>
